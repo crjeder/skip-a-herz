@@ -1,3 +1,5 @@
+!Skip-a-Herz Logo
+
 # skip-a-herz
 This is a submission for the [Hackaday 1Hz Challenge](https://hackaday.io/contest/203248ference) that explores the just noticeable difference (JND) in human perception of time gaps between tones. It plays tone pairs with varying delays and records user responses to estimate perceptual thresholds in real time.
 
