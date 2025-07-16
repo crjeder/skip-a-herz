@@ -13,16 +13,12 @@ This project investigates how small a difference in timing between two tones mus
 - Raspberry Pi Pico
 - Active piezo buzzer
 - Button (for user input)
+- 3D printed case
 - Optional: OLED display or serial monitor
 
 ## 🛠️ Software
 
-- Language: Rust
-- HAL: `rp-hal`
-- Randomness: [`rand`](https://crates.io/crates/rand Clone this repo
-2. Flash the firmware to your Raspberry Pi Pico
-3. Connect the buzzer and button as described in `src/main.rs`
-4. Power up and start testing your auditory perception!
+- Firmware: Rust
 
 ## 📊 Future Features
 - Data logging over USB serial
