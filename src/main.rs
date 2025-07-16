@@ -2,7 +2,7 @@
 #![no_main]
 
 use cortex_m_rt::entry;
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::OutputPin;
 use panic_halt as _;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use rp_pico::hal::{clocks::init_clocks_and_plls, pac, sio::Sio, watchdog::Watchdog, Timer, gpio::Pins};
@@ -35,10 +35,10 @@ fn main() -> ! {
     );
 
     let mut buzzer = pins.gpio15.into_push_pull_output();
-    let mut timer = Timer::new(peripherals.TIMER, &mut peripherals.RESETS);
+    let mut timer = Timer::new(peripherals.TIMER, &mut peripherals.RESETS, &clocks);
 
     let mut rng = SmallRng::seed_from_u64(42); // Fester Seed für Reproduzierbarkeit
-    loop // Ton erzeugen (einfach HIGH für 100 ms)
+    loop {// Ton erzeugen (einfach HIGH für 100 ms)
         buzzer.set_high().unwrap();
         timer.delay_ms(100);
         buzzer.set_low().unwrap();

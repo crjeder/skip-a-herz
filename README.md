@@ -6,7 +6,7 @@ This is a submission for the [Hackaday 1Hz Challenge](https://hackaday.io/contes
 
 ## 🧠 Concept
 
-This project investigates how small a difference in timing between two tones must be for a person to notice it. Participants listen to tone pairs with slightly varying intervals and respond when they perceive a change. The system estimates the perceptual threshold in real time.
+This project investigates how small a difference in timing between two tones must be for a person to just notice it. Participants listen to tone pairs with slightly varying intervals and respond when they perceive a change. The system estimates the perceptual threshold in real time.
 
 ## 🔧 Hardware
 
@@ -21,6 +21,7 @@ This project investigates how small a difference in timing between two tones mus
 - Firmware: Rust
 
 ## 📊 Future Features
+
 - Data logging over USB serial
 - Web-based interface for results
 
@@ -33,5 +34,3 @@ MIT License
 ## 🤝 Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
-
-
