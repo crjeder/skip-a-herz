@@ -1,6 +1,6 @@
 # skip-a-herz
 
-| <img src="pictures/skip-a-herz-logo.jpeg" alt="Skip-a-Herz Logo" width="300"/> |   This is a submission for the [Hackaday 1Hz Challenge](https://hackaday.io/contest/203248ference) that explores the just noticeable difference (JND) in human perception of time gaps between tones. It plays tone pairs with varying delays and records user responses to estimate perceptual thresholds. |
+| <img src="pictures/skip-a-herz-logo.jpeg" alt="Skip-a-Herz Logo" width="300"/> | This is a submission for the [Hackaday 1Hz Challenge](https://hackaday.io/contest/203248ference) that explores the just noticeable difference (JND) in human perception of time gaps between tones. It plays tone pairs with varying delays and records user responses to estimate perceptual thresholds. |
 |--|:--|
 
 ## 🧠 Concept
@@ -11,9 +11,11 @@ This project investigates how small a difference in timing between two tones mus
 
 - Raspberry Pi Pico
 - Active piezo buzzer
-- Button (for user input)
+- 2 Buttons (for user input)
 - 3D printed case
-- Optional: OLED display or serial monitor
+- Battery holder
+- Batteries 2 x AA
+- Optional: OLED display
 
 ### 🛠️ Software
 
