@@ -19,8 +19,14 @@ This project investigates how small a difference in timing between two tones mus
 
 ### 🛠️ Software
 
-- Firmware: Rust
-- Android app
+### Firmware
+
+The software creates several pulses with a variable spacing.
+<img src="pictures/impulse.jpeg" alt="Impulse generation" width="300"/>
+
+### Android app
+
+To display the results.
 
 ### Design Decisions
 
