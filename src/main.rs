@@ -7,11 +7,13 @@ use panic_halt as _;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use rp_pico::hal::{pac, clocks::init_clocks_and_plls, gpio::Pins, sio::Sio, watchdog::Watchdog, Timer};
 // use rp_pico::hal::prelude::*;
+use defmt_rtt as _;
 
 // config
 const NR_BEEPS: u16 = 10; // Anzahl der Töne
 const BEEP_DURATION: u16 = 100; // Dauer jedes Tons in Millisekunden
 const ONE_HERZ: u16 = 1000; // 1 Hz entspricht 1000 ms
+const MAX_RUNDEN: u16 = 10; // maximale Anzahl der Runden
 
 #[entry]
 fn main() -> ! {
@@ -43,29 +45,36 @@ fn main() -> ! {
     let mut timer = Timer::new(peripherals.TIMER, &mut peripherals.RESETS, &clocks);
 
     let mut rng = SmallRng::seed_from_u64(42); // Fester Seed für Reproduzierbarkeit
-    let mut avg_pause: u32 = 100; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
+    let mut avg_pause: u32 = 500; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
 
-    for count in 1..NR_BEEPS {
-        // Zufällige Abweichung +- avg_pause
-        let pause_diff = rng.gen_range(-avg_pause..avg_pause);
+    for runde in 1..MAX_RUNDEN {
+        // Ausgabe der Runde
+        defmt::info!("Runde {}/{}", runde, MAX_RUNDEN);
+        defmt::info!("Durchschnittliche Pause: {} ms", avg_pause);
 
-        // ersten Ton erzeugen (einfach HIGH für 100 ms)
+        for count in 1..NR_BEEPS {
+            // ersten Ton erzeugen (einfach HIGH für 100 ms)
+            buzzer.set_high().unwrap();
+            timer.delay_ms(BEEP_DURATION);
+            buzzer.set_low().unwrap();
+
+            // Zufällige Abweichung +- avg_pause
+            let pause_diff = rng.gen_range(-avg_pause..avg_pause);
+            timer.delay_ms(ONE_HERZ + pause_diff);
+
+            // zweiten Ton erzeugen 
+            buzzer.set_high().unwrap();
+            timer.delay_ms(BEEP_DURATION);
+            buzzer.set_low().unwrap();
+
+            timer.delay_ms(ONE_HERZ - pause_diff);
+        }
+        // Ton für Rundenende erzeugen
         buzzer.set_high().unwrap();
-        timer.delay_ms(BEEP_DURATION);
+        timer.delay_ms(4 * BEEP_DURATION);
         buzzer.set_low().unwrap();
-
-        // Zufällige Abweichung +- avg_pause
-        let pause_diff = rng.gen_range(-avg_pause..avg_pause);
-        timer.delay_ms(ONE_HERZ + pause_diff);
-
-        // zweiten Ton erzeugen 
-        buzzer.set_high().unwrap();
-        timer.delay_ms(BEEP_DURATION);
-        buzzer.set_low().unwrap();
-
-        timer.delay_ms(ONE_HERZ - pause_diff);
+        // user input: Differenz erkannt oder nicht
+        // wenn ja, dann avg_pause verringern (halbieren) 
+        // wenn nein, dann avg_pause erhöhen (* 1,5)
     }
-    // user input: Differenz erkannt oder nicht
-    // wenn ja, dann avg_pause verringern (halbieren) 
-    // wenn nein, dann avg_pause erhöhen (* 1,5)
 }
