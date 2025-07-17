@@ -28,6 +28,9 @@ The software creates several pulses with a variable spacing.
 ### Android app
 
 To display the results.
+Several choices:
+- https://appinventor.mit.edu/
+- BlueDash
 
 ### Design Decisions
 

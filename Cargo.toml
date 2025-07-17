@@ -22,6 +22,9 @@ defmt = "1"
 defmt-rtt = "1"
 panic-probe = { version = "1", features = ["print-defmt"] }
 rand = "0.9.1"
+# defmt = "1.0.1"
+# defmt-rtt = "1.0.0"
+# probe-rs = "0.29.1"
 
 [features]
 default = ["rp-pico/rt"]
