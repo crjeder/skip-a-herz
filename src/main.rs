@@ -5,8 +5,13 @@ use cortex_m_rt::entry;
 use embedded_hal::digital::OutputPin;
 use panic_halt as _;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
-use rp_pico::hal::{clocks::init_clocks_and_plls, pac, sio::Sio, watchdog::Watchdog, Timer, gpio::Pins};
-use rp_pico::hal::prelude::*;
+use rp_pico::hal::{clocks::init_clocks_and_plls, gpio::Pins, pac, pwm::B, sio::Sio, watchdog::Watchdog, Timer};
+// use rp_pico::hal::prelude::*;
+
+// config
+const NR_BEEPS: u8 = 10; // Anzahl der Töne
+const BEEP_DURATION: u16 = 100; // Dauer jedes Tons in Millisekunden
+const ONE_HERZ: u16 = 1000; // 1 Hz entspricht 1000 ms
 
 #[entry]
 fn main() -> ! {
@@ -38,13 +43,23 @@ fn main() -> ! {
     let mut timer = Timer::new(peripherals.TIMER, &mut peripherals.RESETS, &clocks);
 
     let mut rng = SmallRng::seed_from_u64(42); // Fester Seed für Reproduzierbarkeit
-    loop {// Ton erzeugen (einfach HIGH für 100 ms)
+    let mut avg_pause: u32 = 100; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
+
+    let count: u16 = 0;
+    while count < NR_BEEPS as u32 {
+        // Ton erzeugen (einfach HIGH für 100 ms)
         buzzer.set_high().unwrap();
-        timer.delay_ms(100);
+        timer.delay_ms(BEEP_DURATION);
         buzzer.set_low().unwrap();
 
-        // Zufällige Pause zwischen 100 und 500 ms
-        let pause = rng.gen_range(100..500);
-        timer.delay_ms(pause);
+        // Zufällige Abweichung +- avg_pause
+        let pause_diff = rng.gen_range(-avg_pause..avg_pause);
+        timer.delay_ms(ONE_HERZ + pause_diff);
+
+        buzzer.set_high().unwrap();
+        timer.delay_ms(BEEP_DURATION);
+        buzzer.set_low().unwrap();
+
+        timer.delay_ms(ONE_HERZ - pause_diff);
     }
 }
