@@ -5,7 +5,7 @@ use cortex_m_rt::entry;
 use embedded_hal::digital::OutputPin;
 use panic_halt as _;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
-use rp_pico::hal::{clocks::init_clocks_and_plls, gpio::Pins, pac, pwm::B, sio::Sio, watchdog::Watchdog, Timer};
+use rp_pico::hal::{pac, clocks::init_clocks_and_plls, gpio::Pins, sio::Sio, watchdog::Watchdog, Timer};
 // use rp_pico::hal::prelude::*;
 
 // config
