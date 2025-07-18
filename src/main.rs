@@ -98,7 +98,7 @@ fn main() -> ! {
                 antwort = YesNo::No;
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
-            timer.delay_ms(100); // Kurze Pause, um CPU-Last zu reduzieren
+            timer.delay_ms(50); // Kurze Pause, um CPU-Last zu reduzieren
         }
         defmt::info!("Antwort: {:?}", antwort);
         
@@ -116,6 +116,7 @@ fn main() -> ! {
                 defmt::info!("Pause erhöht: {} ms", avg_pause);
             },           
         } 
+        defmt::info!("Kleinste erkannte Abweichung: {} ms", avg_pause);
         // user input: Differenz erkannt oder nicht
         // wenn ja, dann avg_pause verringern (halbieren) 
         // wenn nein, dann avg_pause erhöhen (* 1,5)
