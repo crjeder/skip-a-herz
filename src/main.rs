@@ -53,7 +53,7 @@ fn main() -> ! {
     let mut timer = Timer::new(peripherals.TIMER, &mut peripherals.RESETS, &clocks);
 
     let mut rng = SmallRng::seed_from_u64(42); // Fester Seed für Reproduzierbarkeit
-    let mut avg_pause: u32 = 500; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
+    let mut avg_pause: f32 = 500.0; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
 
     for runde in 1..MAX_RUNDEN {
         // Ausgabe der Runde
@@ -88,12 +88,12 @@ fn main() -> ! {
         loop {
             let button_pressed = yes_button.is_low().unwrap() || no_button.is_low().unwrap();
 
-            if debouncer.update(yes_button.is_low().unwrap(), Edge::Rising) {
+            if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising) {
                 defmt::info!("Benutzereingabe: ja.");
                 antwort = YesNo::Yes;
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
-              if debouncer.update(no_button.is_low().unwrap(), Edge::Rising) {
+              if debouncer.update(no_button.is_low().unwrap())  == Some(Edge::Rising) {
                 defmt::info!("Benutzereingabe: nen.");
                 antwort = YesNo::No;
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
@@ -112,7 +112,7 @@ fn main() -> ! {
             },
             YesNo::No => {
                 // Keine Differenz erkannt, avg_pause erhöhen
-                avg_pause = (avg_pause as f32 * 1.5) as u32; // Erhöhung um 50%
+                avg_pause = avg_pause * 1.5; // Erhöhung um 50%
                 defmt::info!("Pause erhöht: {} ms", avg_pause);
             },           
         } 
