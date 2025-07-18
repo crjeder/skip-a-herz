@@ -15,6 +15,8 @@ const NR_BEEPS: u16 = 10; // Anzahl der Töne
 const BEEP_DURATION: u16 = 100; // Dauer jedes Tons in Millisekunden
 const ONE_HERZ: u16 = 1000; // 1 Hz entspricht 1000 ms
 const MAX_RUNDEN: u16 = 10; // maximale Anzahl der Runden
+const PAUSE_MIN: u16 = 100; // Mindestwert für die Pause zwischen den Tönen in Millisekunden
+const DEBOUNCE_TRASHOLD: u16 = 50; // Debounce-Zeit in Millisekunden
 
 enum YesNo {
     Yes,
@@ -98,14 +100,14 @@ fn main() -> ! {
                 antwort = YesNo::No;
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
-            timer.delay_ms(50); // Kurze Pause, um CPU-Last zu reduzieren
+            timer.delay_ms(DEBOUNCE_TRASHOLD); // Kurze Pause, um CPU-Last zu reduzieren
         }
         defmt::info!("Antwort: {:?}", antwort);
         
         match antwort {
             YesNo::Yes => {
                 // Differenz erkannt, avg_pause halbieren
-                if avg_pause > 100 { // Mindestwert für avg_pause
+                if avg_pause > PAUSE_MIN { // Mindestwert für avg_pause
                     avg_pause /= 2;
                 }
                 defmt::info!("Pause halbiert: {} ms", avg_pause);
