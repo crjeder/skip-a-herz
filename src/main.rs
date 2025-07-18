@@ -56,6 +56,7 @@ fn main() -> ! {
 
     let mut rng = SmallRng::seed_from_u64(42); // Fester Seed für Reproduzierbarkeit
     let mut avg_pause: f32 = 500.0; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
+    let mut ergebnis: f32 = ONE_HERZ; // Ergebnis des Versuchs
 
     for runde in 1..MAX_RUNDEN {
         // Ausgabe der Runde
@@ -93,6 +94,7 @@ fn main() -> ! {
             if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising) {
                 defmt::info!("Benutzereingabe: ja.");
                 antwort = YesNo::Yes;
+                ergebnis = avg_pause; // Speichern der aktuellen Pause als Ergebnis
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
               if debouncer.update(no_button.is_low().unwrap())  == Some(Edge::Rising) {
@@ -118,7 +120,7 @@ fn main() -> ! {
                 defmt::info!("Pause erhöht: {} ms", avg_pause);
             },           
         } 
-        defmt::info!("Kleinste erkannte Abweichung: {} ms", avg_pause);
+        defmt::info!("Kleinste erkannte Abweichung: {} ms", ergebnis);
         // user input: Differenz erkannt oder nicht
         // wenn ja, dann avg_pause verringern (halbieren) 
         // wenn nein, dann avg_pause erhöhen (* 1,5)
