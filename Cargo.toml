@@ -22,7 +22,8 @@ defmt = "1"
 defmt-rtt = "1"
 panic-probe = { version = "1", features = ["print-defmt"] }
 debouncr = { version = "0.2.2" }
-rand = "0.9.1"
+rand = { version = "0.9.1" , features = ["small_rng"]}
+#default-features = false,  }
 
 [features]
 default = ["rp-pico/rt"]

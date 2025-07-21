@@ -4,7 +4,7 @@
 use cortex_m_rt::entry;
 use embedded_hal::digital::OutputPin;
 use panic_halt as _;
-use rand::{rngs::SmallRng, Rng, SeedableRng};
+use rand::{random, Rng, rngs::SmallRng, RngCore};
 use rp_pico::hal::{pac, clocks::init_clocks_and_plls, gpio::Pins, sio::Sio, watchdog::Watchdog, Timer};
 // use rp_pico::hal::prelude::*;
 use defmt_rtt as _;
@@ -56,11 +56,14 @@ fn main() -> ! {
 
     let mut rng = SmallRng::seed_from_u64(42); // Fester Seed für Reproduzierbarkeit
     let mut avg_pause: f32 = 500.0; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
-    let mut ergebnis: f32 = ONE_HERZ; // Ergebnis des Versuchs
+    let mut ergebnis: f32 = ONE_HERZ as f32; // Ergebnis des Versuchs
 
     for runde in 1..MAX_RUNDEN {
         // Ausgabe der Runde
         defmt::info!("Runde {}/{} mit durchschnittlicher Pause: {} ms", runde, MAX_RUNDEN, avg_pause);
+
+        let mut mit_abweichung: bool = random();
+        let pause_diff: f32 = 0.0; // Initialisierung der Pause-Differenz
 
         for count in 1..NR_BEEPS {
             // ersten Ton erzeugen (einfach HIGH für 100 ms)
@@ -69,7 +72,11 @@ fn main() -> ! {
             buzzer.set_low().unwrap();
 
             // Zufällige Abweichung +- avg_pause
-            let pause_diff = rng.gen_range(-avg_pause..avg_pause);
+            if mit_abweichung {
+                pause_diff = rng.random_range(-avg_pause..avg_pause);
+            } else {
+                pause_diff = 0.0;
+            }
             timer.delay_ms(ONE_HERZ + pause_diff);
 
             // zweiten Ton erzeugen 
@@ -91,14 +98,13 @@ fn main() -> ! {
         loop {
             let button_pressed = yes_button.is_low().unwrap() || no_button.is_low().unwrap();
 
-            if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising) {
+            if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising){
                 defmt::info!("Benutzereingabe: ja.");
                 antwort = YesNo::Yes;
-                ergebnis = avg_pause; // Speichern der aktuellen Pause als Ergebnis
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
               if debouncer.update(no_button.is_low().unwrap())  == Some(Edge::Rising) {
-                defmt::info!("Benutzereingabe: nen.");
+                defmt::info!("Benutzereingabe: nein.");
                 antwort = YesNo::No;
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
@@ -109,10 +115,14 @@ fn main() -> ! {
         match antwort {
             YesNo::Yes => {
                 // Differenz erkannt, avg_pause halbieren
-                if avg_pause > PAUSE_MIN { // Mindestwert für avg_pause
-                    avg_pause /= 2;
+                if mit_abweichung {
+                    ergebnis = avg_pause / 2.0; // Ergebnis ist die Hälfte der durchschnittlichen Pause
+                    if avg_pause > PAUSE_MIN { // Mindestwert für avg_pause
+                        avg_pause /= 2;
+                        defmt::info!("Abweichung halbiert: {} ms", avg_pause);
+                    }
                 }
-                defmt::info!("Pause halbiert: {} ms", avg_pause);
+                
             },
             YesNo::No => {
                 // Keine Differenz erkannt, avg_pause erhöhen
