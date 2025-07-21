@@ -62,7 +62,7 @@ fn main() -> ! {
         // Ausgabe der Runde
         defmt::info!("Runde {}/{} mit durchschnittlicher Pause: {} ms", runde, MAX_RUNDEN, avg_pause);
 
-        let mut mit_abweichung: bool = random();
+        let mut mit_abweichung: bool = rng.random();
         let pause_diff: f32 = 0.0; // Initialisierung der Pause-Differenz
 
         for count in 1..NR_BEEPS {
