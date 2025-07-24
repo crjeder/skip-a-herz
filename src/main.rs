@@ -4,7 +4,7 @@
 use cortex_m_rt::entry;
 use embedded_hal::digital::OutputPin;
 use panic_halt as _;
-use rand::{random, Rng, rngs::SmallRng, RngCore};
+use rand::{Rng, rngs::SmallRng, RngCore};
 use rp_pico::hal::{pac, clocks::init_clocks_and_plls, gpio::Pins, sio::Sio, watchdog::Watchdog, Timer};
 // use rp_pico::hal::prelude::*;
 use defmt_rtt as _;
