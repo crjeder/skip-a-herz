@@ -15,18 +15,15 @@ include = ["src/main.rs", "LICENSE", "README.md", "CHANGELOG.md"]
 [dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
-rp-pico = "0.9"
-embedded-hal = "1.0.0"
-panic-halt = "1.0.0"
+rp-pico = { version = "0.9", feature = ["rp-pico/rt"] }
+embedded-hal = "1.0"
+panic-halt = "1.0"
 defmt = "1"
 defmt-rtt = "1"
 panic-probe = { version = "1", features = ["print-defmt"] }
 debouncr = { version = "0.2.2" }
 rand = { version = "0.9.2" , features = ["small_rng"], default-features = false }
 rand_core = { version = "0.9.3", default-features = false }
-
-[features]
-default = ["rp-pico/rt"]
 
 # from rp2040-project-template
 #https://github.com/rp-rs/rp2040-project-template/blob/main/Cargo.toml
