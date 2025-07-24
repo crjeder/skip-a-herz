@@ -56,3 +56,8 @@ MIT License
 ## 🤝 Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
+
+---
+ToDo:
+- complete embedded setup as per https://github.com/rp-rs/rp2040-project-template/blob/main/Cargo.toml
+- test on hardware
