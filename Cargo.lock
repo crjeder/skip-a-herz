@@ -536,6 +536,7 @@ dependencies = [
  "panic-halt",
  "panic-probe",
  "rand",
+ "rand_core 0.9.3",
  "rp-pico",
 ]
 

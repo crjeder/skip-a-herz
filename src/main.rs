@@ -2,21 +2,20 @@
 #![no_main]
 
 use cortex_m_rt::entry;
-use embedded_hal::digital::OutputPin;
+use embedded_hal::{digital::{OutputPin, InputPin}, delay::DelayNs};
 use panic_halt as _;
-use rand::{Rng, rngs::SmallRng, RngCore};
+use rand::{Rng, rngs::SmallRng, SeedableRng};
 use rp_pico::hal::{pac, clocks::init_clocks_and_plls, gpio::Pins, sio::Sio, watchdog::Watchdog, Timer};
-// use rp_pico::hal::prelude::*;
 use defmt_rtt as _;
 use debouncr::{debounce_stateful_3, Edge};
 
 // config
-const NR_BEEPS: u16 = 10; // Anzahl der Töne
-const BEEP_DURATION: u16 = 100; // Dauer jedes Tons in Millisekunden
-const ONE_HERZ: u16 = 1000; // 1 Hz entspricht 1000 ms
-const MAX_RUNDEN: u16 = 10; // maximale Anzahl der Runden
-const PAUSE_MIN: u16 = 100; // Mindestwert für die Pause zwischen den Tönen in Millisekunden
-const DEBOUNCE_TRASHOLD: u16 = 50; // Debounce-Zeit in Millisekunden
+const NR_BEEPS: u32 = 10; // Anzahl der Töne
+const BEEP_DURATION: u32 = 100; // Dauer jedes Tons in Millisekunden
+const ONE_HERZ: u32 = 1000; // 1 Hz entspricht 1000 ms
+const MAX_RUNDEN: u32 = 10; // maximale Anzahl der Runden
+const PAUSE_MIN: f32 = 100.0; // Mindestwert für die Pause zwischen den Tönen in Millisekunden
+const DEBOUNCE_TRASHOLD: u32 = 50; // Debounce-Zeit in Millisekunden
 
 enum YesNo {
     Yes,
@@ -26,7 +25,7 @@ enum YesNo {
 #[entry]
 fn main() -> ! {
     let mut peripherals = pac::Peripherals::take().unwrap();
-    let core = pac::CorePeripherals::take().unwrap();
+    //let core = pac::CorePeripherals::take().unwrap();
 
     let mut watchdog = Watchdog::new(peripherals.WATCHDOG);
     let clocks = init_clocks_and_plls(
@@ -62,10 +61,10 @@ fn main() -> ! {
         // Ausgabe der Runde
         defmt::info!("Runde {}/{} mit durchschnittlicher Pause: {} ms", runde, MAX_RUNDEN, avg_pause);
 
-        let mut mit_abweichung: bool = rng.random();
-        let pause_diff: f32 = 0.0; // Initialisierung der Pause-Differenz
+        let mit_abweichung: bool = rng.random();
+        let mut pause_diff: f32; // Initialisierung der Pause-Differenz
 
-        for count in 1..NR_BEEPS {
+        for _ in 1..NR_BEEPS {
             // ersten Ton erzeugen (einfach HIGH für 100 ms)
             buzzer.set_high().unwrap();
             timer.delay_ms(BEEP_DURATION);
@@ -77,14 +76,14 @@ fn main() -> ! {
             } else {
                 pause_diff = 0.0;
             }
-            timer.delay_ms(ONE_HERZ + pause_diff);
+            timer.delay_ms(ONE_HERZ as u32 + pause_diff as u32);
 
             // zweiten Ton erzeugen 
             buzzer.set_high().unwrap();
             timer.delay_ms(BEEP_DURATION);
             buzzer.set_low().unwrap();
 
-            timer.delay_ms(ONE_HERZ - pause_diff);
+            timer.delay_ms(ONE_HERZ - pause_diff as u32); // Pause zwischen den Tönen
         }
         // Ton für Rundenende erzeugen
         buzzer.set_high().unwrap();
@@ -92,20 +91,20 @@ fn main() -> ! {
         buzzer.set_low().unwrap();
 
         let mut debouncer = debounce_stateful_3(false);
-        let mut antwort: YesNo = None;
+        let mut antwort: Option<YesNo>;
 
         // Warten auf Benutzerinteraktion
         loop {
-            let button_pressed = yes_button.is_low().unwrap() || no_button.is_low().unwrap();
+            //let button_pressed = yes_button.is_low().unwrap() || no_button.is_low().unwrap();
 
             if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising){
                 defmt::info!("Benutzereingabe: ja.");
-                antwort = YesNo::Yes;
+                antwort = Some(YesNo::Yes);
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
               if debouncer.update(no_button.is_low().unwrap())  == Some(Edge::Rising) {
                 defmt::info!("Benutzereingabe: nein.");
-                antwort = YesNo::No;
+                antwort = Some(YesNo::No);
                 break; // Beenden der Warte-Schleife bei Benutzereingabe
             }
             timer.delay_ms(DEBOUNCE_TRASHOLD); // Kurze Pause, um CPU-Last zu reduzieren
@@ -113,26 +112,31 @@ fn main() -> ! {
         defmt::info!("Antwort: {:?}", antwort);
         
         match antwort {
-            YesNo::Yes => {
+            Some(YesNo::Yes) => {
                 // Differenz erkannt, avg_pause halbieren
                 if mit_abweichung {
                     ergebnis = avg_pause / 2.0; // Ergebnis ist die Hälfte der durchschnittlichen Pause
                     if avg_pause > PAUSE_MIN { // Mindestwert für avg_pause
-                        avg_pause /= 2;
+                        avg_pause /= 2.0;
                         defmt::info!("Abweichung halbiert: {} ms", avg_pause);
                     }
                 }
                 
             },
-            YesNo::No => {
+            Some(YesNo::No) => {
                 // Keine Differenz erkannt, avg_pause erhöhen
                 avg_pause = avg_pause * 1.5; // Erhöhung um 50%
                 defmt::info!("Pause erhöht: {} ms", avg_pause);
-            },           
+            },
+            None => {
+                defmt::warn!("Keine Antwort erhalten");
+                // Standardverhalten: Keine Änderung an avg_pause
+            }           
         } 
         defmt::info!("Kleinste erkannte Abweichung: {} ms", ergebnis);
         // user input: Differenz erkannt oder nicht
         // wenn ja, dann avg_pause verringern (halbieren) 
         // wenn nein, dann avg_pause erhöhen (* 1,5)
     } // Ende der Runde
+    loop {}
 }
