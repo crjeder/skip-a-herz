@@ -104,12 +104,12 @@ fn main() -> ! {
         buzzer.set_low().unwrap();
 
         let mut debouncer = debounce_stateful_3(false);
-        let mut antwort: Option<YesNo>;
+        let antwort: Option<YesNo>; // warum braucht es hier kein mut?
 
+        // antwort = None; // Reset der Antwort
         // Warten auf Benutzerinteraktion
         loop {
-            //let button_pressed = yes_button.is_low().unwrap() || no_button.is_low().unwrap();
-
+            // Prüfen, ob der Benutzer eine Taste gedrückt hat
             if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising) {
                 defmt::info!("Benutzereingabe: ja.");
                 antwort = Some(YesNo::Yes);
