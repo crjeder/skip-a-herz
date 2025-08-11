@@ -1,17 +1,18 @@
 #![no_std]
 #![no_main]
 
-use cortex_m_rt::entry;
-use debouncr::{debounce_stateful_3, Edge};
+//use cortex_m_rt::entry;
+use debouncr::{Edge, debounce_stateful_3};
 use defmt_rtt as _;
 use embedded_hal::{
     delay::DelayNs,
     digital::{InputPin, OutputPin},
 };
 use panic_halt as _;
-use rand::{rngs::SmallRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng};
+use rp_pico::entry;
 use rp_pico::hal::{
-    clocks::init_clocks_and_plls, gpio::Pins, pac, sio::Sio, watchdog::Watchdog, Timer,
+    Timer, clocks::init_clocks_and_plls, gpio::Pins, pac, sio::Sio, watchdog::Watchdog,
 };
 
 // config

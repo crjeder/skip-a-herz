@@ -8,23 +8,23 @@ repository = "https://github.com/crjeder/skip-a-herz"
 readme = "README.md"
 #documentation = "https://docs.rs/hx711_spi"
 license = "MIT OR Apache-2.0"
-edition = "2021"
+edition = "2024"
 version = "0.0.1"
 include = ["src/main.rs", "LICENSE", "README.md", "CHANGELOG.md"]
 
 [dependencies]
 # rp2040 dependencies
-cortex-m = "0.7"
+# cortex-m = "0.7"
+rp2040-pac = "0.6.0"
+rp-pico = "0.9"
 cortex-m-rt = "0.7"
-rp-pico = { version = "0.9", features = ["rt"] }
-rp2040-hal = { version = "0.11", features = ["rt", "critical-section-impl"] }
-rp2040-boot2 = "0.3"
+rp2040 = { version = "0.1.0" }
 cyw43 = { version = "0.4.0", features = [
     "defmt",
     "firmware-logs",
     "bluetooth",
 ] }
-cyw43-pio = { version = "0.6.0", features = ["defmt"] }
+# cyw43-pio = { version = "0.6.0", features = ["defmt"] }
 
 # embedded dependencies
 embedded-hal = "1.0"
