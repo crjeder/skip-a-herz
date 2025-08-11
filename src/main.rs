@@ -65,92 +65,90 @@ fn main() -> ! {
     let mut avg_pause: f32 = 500.0; // durchschnittliche Veränderung der Pause zwischen den Tönen in Millisekunden
     let mut ergebnis: f32 = ONE_HERZ as f32; // Ergebnis des Versuchs
 
-    for runde in 1..MAX_RUNDEN {
-        // Ausgabe der Runde
-        defmt::info!(
-            "Runde {}/{} mit durchschnittlicher Pause: {} ms",
-            runde,
-            MAX_RUNDEN,
-            avg_pause
-        );
+    loop {
+        for runde in 1..MAX_RUNDEN {
+            // Ausgabe der Runde
+            defmt::info!(
+                "Runde {}/{} mit durchschnittlicher Pause: {} ms",
+                runde,
+                MAX_RUNDEN,
+                avg_pause
+            );
 
-        let mit_abweichung: bool = rng.random();
-        let mut pause_diff: f32; // Initialisierung der Pause-Differenz
+            let mit_abweichung: bool = rng.random();
+            let mut pause_diff: f32; // Initialisierung der Pause-Differenz
 
-        for _ in 1..NR_BEEPS {
-            // ersten Ton erzeugen (einfach HIGH für 100 ms)
-            buzzer.set_high().unwrap();
-            timer.delay_ms(BEEP_DURATION);
-            buzzer.set_low().unwrap();
+            for _ in 1..NR_BEEPS {
+                // ersten Ton erzeugen (einfach HIGH für 100 ms)
+                buzzer.set_high().unwrap();
+                timer.delay_ms(BEEP_DURATION);
+                buzzer.set_low().unwrap();
 
-            // Zufällige Abweichung +- avg_pause
-            if mit_abweichung {
-                pause_diff = rng.random_range(-avg_pause..avg_pause);
-            } else {
-                pause_diff = 0.0;
-            }
-            timer.delay_ms(ONE_HERZ as u32 + pause_diff as u32);
-
-            // zweiten Ton erzeugen
-            buzzer.set_high().unwrap();
-            timer.delay_ms(BEEP_DURATION);
-            buzzer.set_low().unwrap();
-
-            timer.delay_ms(ONE_HERZ - pause_diff as u32); // Pause zwischen den Tönen
-        }
-        // Ton für Rundenende erzeugen
-        buzzer.set_high().unwrap();
-        timer.delay_ms(4 * BEEP_DURATION);
-        buzzer.set_low().unwrap();
-
-        let mut debouncer = debounce_stateful_3(false);
-        let antwort: Option<YesNo>; // warum braucht es hier kein mut?
-
-        // antwort = None; // Reset der Antwort
-        // Warten auf Benutzerinteraktion
-        loop {
-            // Prüfen, ob der Benutzer eine Taste gedrückt hat
-            if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising) {
-                defmt::info!("Benutzereingabe: ja.");
-                antwort = Some(YesNo::Yes);
-                break; // Beenden der Warte-Schleife bei Benutzereingabe
-            }
-            if debouncer.update(no_button.is_low().unwrap()) == Some(Edge::Rising) {
-                defmt::info!("Benutzereingabe: nein.");
-                antwort = Some(YesNo::No);
-                break; // Beenden der Warte-Schleife bei Benutzereingabe
-            }
-            timer.delay_ms(DEBOUNCE_TRASHOLD); // Kurze Pause, um CPU-Last zu reduzieren
-        }
-
-        match antwort {
-            Some(YesNo::Yes) => {
-                defmt::info!("Antwort: Ja");
-                // Differenz erkannt, avg_pause halbieren
+                // Zufällige Abweichung +- avg_pause
                 if mit_abweichung {
-                    ergebnis = avg_pause / 2.0; // Ergebnis ist die Hälfte der durchschnittlichen Pause
-                    if avg_pause > PAUSE_MIN {
-                        // Mindestwert für avg_pause
-                        avg_pause /= 2.0;
-                        defmt::info!("Abweichung halbiert: {} ms", avg_pause);
+                    pause_diff = rng.random_range(-avg_pause..avg_pause);
+                } else {
+                    pause_diff = 0.0;
+                }
+                timer.delay_ms(ONE_HERZ + pause_diff as u32);
+
+                // zweiten Ton erzeugen
+                buzzer.set_high().unwrap();
+                timer.delay_ms(BEEP_DURATION);
+                buzzer.set_low().unwrap();
+
+                timer.delay_ms(ONE_HERZ - pause_diff as u32); // Pause zwischen den Tönen
+            }
+            // Ton für Rundenende erzeugen
+            buzzer.set_high().unwrap();
+            timer.delay_ms(4 * BEEP_DURATION);
+            buzzer.set_low().unwrap();
+
+            let mut debouncer = debounce_stateful_3(false);
+            let antwort: Option<YesNo>; // warum braucht es hier kein mut?
+
+            // antwort = None; // Reset der Antwort
+            // Warten auf Benutzerinteraktion
+            loop {
+                // Prüfen, ob der Benutzer eine Taste gedrückt hat
+                if debouncer.update(yes_button.is_low().unwrap()) == Some(Edge::Rising) {
+                    defmt::info!("Benutzereingabe: ja.");
+                    antwort = Some(YesNo::Yes);
+                    break; // Beenden der Warte-Schleife bei Benutzereingabe
+                }
+                if debouncer.update(no_button.is_low().unwrap()) == Some(Edge::Rising) {
+                    defmt::info!("Benutzereingabe: nein.");
+                    antwort = Some(YesNo::No);
+                    break; // Beenden der Warte-Schleife bei Benutzereingabe
+                }
+                timer.delay_ms(DEBOUNCE_TRASHOLD); // Kurze Pause, um CPU-Last zu reduzieren
+            }
+
+            match antwort {
+                Some(YesNo::Yes) => {
+                    defmt::info!("Antwort: Ja");
+                    // Differenz erkannt, avg_pause halbieren
+                    if mit_abweichung {
+                        ergebnis = avg_pause / 2.0; // Ergebnis ist die Hälfte der durchschnittlichen Pause
+                        if avg_pause > PAUSE_MIN {
+                            // Mindestwert für avg_pause
+                            avg_pause /= 2.0;
+                            defmt::info!("Abweichung halbiert: {} ms", avg_pause);
+                        }
                     }
                 }
+                Some(YesNo::No) => {
+                    // Keine Differenz erkannt, avg_pause erhöhen
+                    defmt::info!("Antwort: Nein");
+                    avg_pause *= 1.5; // Erhöhung um 50%
+                    defmt::info!("Pause erhöht: {} ms", avg_pause);
+                }
+                None => {
+                    defmt::warn!("Keine Antwort erhalten");
+                    // Standardverhalten: Keine Änderung an avg_pause
+                }
             }
-            Some(YesNo::No) => {
-                // Keine Differenz erkannt, avg_pause erhöhen
-                defmt::info!("Antwort: Nein");
-                avg_pause = avg_pause * 1.5; // Erhöhung um 50%
-                defmt::info!("Pause erhöht: {} ms", avg_pause);
-            }
-            None => {
-                defmt::warn!("Keine Antwort erhalten");
-                // Standardverhalten: Keine Änderung an avg_pause
-            }
-        }
-        defmt::info!("Kleinste erkannte Abweichung: {} ms", ergebnis);
-        // user input: Differenz erkannt oder nicht
-        // wenn ja, dann avg_pause verringern (halbieren)
-        // wenn nein, dann avg_pause erhöhen (* 1,5)
-    } // Ende der Runde
-    loop {}
+            defmt::info!("Kleinste erkannte Abweichung: {} ms", ergebnis);
+        } // Ende der Runde;
+    }
 }
