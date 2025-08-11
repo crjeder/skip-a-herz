@@ -495,6 +495,8 @@ dependencies = [
  "embassy-hal-internal",
  "embassy-sync",
  "embassy-time",
+ "embassy-time-driver",
+ "embassy-time-queue-utils",
  "embassy-usb-driver",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
@@ -554,6 +556,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d45f5d833b6d98bd2aab0c2de70b18bfaa10faf661a1578fd8e5dfb15eb7eba"
 dependencies = [
  "document-features",
+]
+
+[[package]]
+name = "embassy-time-queue-utils"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59b742d6fec7afcfa77c91b476520627151da3735fca6373b287c4c94b69e171"
+dependencies = [
+ "embassy-executor",
+ "heapless",
 ]
 
 [[package]]
@@ -1208,6 +1220,9 @@ name = "portable-atomic"
 version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f84267b20a16ea918e43c6a88433c2d54fa145c92a811b5b047ccbe153674483"
+dependencies = [
+ "critical-section",
+]
 
 [[package]]
 name = "precomputed-hash"
@@ -1324,6 +1339,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "rp-binary-info"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88ed2051a0bf2c726df01cfce378ed8a367be2a6e402fc183857f429a346d429"
+
+[[package]]
+name = "rp-hal-common"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8288358786b1458fb2caac8c4b40fb529ef4200d6c46467e2695b7a8ba573ae8"
+dependencies = [
+ "fugit",
+]
+
+[[package]]
 name = "rp-pac"
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1342,7 +1372,7 @@ dependencies = [
  "cortex-m-rt",
  "fugit",
  "rp2040-boot2",
- "rp2040-hal",
+ "rp2040-hal 0.10.2",
  "usb-device",
 ]
 
@@ -1377,6 +1407,37 @@ dependencies = [
  "paste",
  "pio 0.2.1",
  "rand_core 0.6.4",
+ "rp2040-hal-macros",
+ "rp2040-pac",
+ "usb-device",
+ "vcell",
+ "void",
+]
+
+[[package]]
+name = "rp2040-hal"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fb79a4590775204387f334672e6f79c0d734d0a159da23d60677b3c10fa1245"
+dependencies = [
+ "bitfield 0.14.0",
+ "cortex-m",
+ "critical-section",
+ "embedded-dma",
+ "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-hal-nb",
+ "embedded-io",
+ "frunk",
+ "fugit",
+ "itertools 0.10.5",
+ "nb 1.1.0",
+ "paste",
+ "pio 0.2.1",
+ "rand_core 0.6.4",
+ "rp-binary-info",
+ "rp-hal-common",
  "rp2040-hal-macros",
  "rp2040-pac",
  "usb-device",
@@ -1479,7 +1540,6 @@ checksum = "56199f7ddabf13fe5074ce809e7d3f42b42ae711800501b5b16ea82ad029c39d"
 name = "skip-a-herz"
 version = "0.0.1"
 dependencies = [
- "bt-hci",
  "cortex-m",
  "cortex-m-rt",
  "cyw43",
@@ -1488,15 +1548,20 @@ dependencies = [
  "defmt 1.0.1",
  "defmt-rtt",
  "embassy-executor",
+ "embassy-futures",
  "embassy-rp",
  "embassy-sync",
  "embassy-time",
  "embedded-hal 1.0.0",
+ "futures",
  "panic-halt",
  "panic-probe",
+ "portable-atomic",
  "rand",
  "rand_core 0.9.3",
  "rp-pico",
+ "rp2040-boot2",
+ "rp2040-hal 0.11.0",
  "trouble-host",
 ]
 
