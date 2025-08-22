@@ -1,3 +1,4 @@
+// cSpell:locale en,de
 #![no_std]
 #![no_main]
 
